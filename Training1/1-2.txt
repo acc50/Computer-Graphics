@@ -1,0 +1,17 @@
+윈도우를 띄우고 마우스 명령을 실행 해 본다
+-화면 중앙에 사각형을 그린다
+-마우스를 클릭하여 색상을 바꾼다
+  사각형 내부 클릭: 사각형 색상 바꾸기
+  사각형 외부 클릭: 배경색 바꾸기
+
+-사각형 그리기 함수
+  void glRectf (GLfloat x1 GLfloat y1, GLfloat x2, GLfloat y2);
+	(x1 y1) : 좌측하단 좌표
+	(x2 y2) : 우측하단 좌표
+ 사각형 색상 바꾸기
+  void glColor3f (GLfloat x, GLfloat y, GLfloat z);
+	(r, g, b) : red, green, blue 색상, 0.0~1.0 사이의 값으로 glRectf 를 호출하기 직전 설정한다.
+	Modern openGL에서는 사용할 수 없는 deprecated 함수
+
+openGL 은 y값이 올라가면 + 임
+좌표계 계산을 해서 도형을 그리면 됨

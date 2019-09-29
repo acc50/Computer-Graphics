@@ -1,0 +1,9 @@
+﻿  2.cpp
+d:\home\desktop\2-2\컴그\워밍업\워밍업\2.cpp(80): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\home\desktop\2-2\컴그\워밍업\워밍업\2.cpp(119): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\home\desktop\2-2\컴그\워밍업\워밍업\2.cpp(130): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\home\desktop\2-2\컴그\워밍업\워밍업\2.cpp(139): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\home\desktop\2-2\컴그\워밍업\워밍업\2.cpp(59): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\stdio.h(2263): note: 'sscanf' 선언을 참조하십시오.
+d:\home\desktop\2-2\컴그\워밍업\워밍업\2.cpp(41): warning C4101: 'num' :참조되지 않은 지역 변수입니다.
+  워밍업.vcxproj -> D:\Home\Desktop\2-2\컴그\워밍업\Debug\워밍업.exe

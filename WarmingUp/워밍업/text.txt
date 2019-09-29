@@ -1,0 +1,10 @@
+This is computer graphics warming up program.
+1 2 3 4 5 6 7 8 9 10
+File input output sample program
+3D computer graphics
+2019-2
+Korea Polytechnic University
+Game and multimedia engineering department
+10 line sample data
+Monday Tuesday Wednesday Thursday Friday
+This is the last sentence.
