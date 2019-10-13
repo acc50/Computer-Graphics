@@ -43,8 +43,8 @@ int main(int argc, char** argv) // 윈도우 출력하고 콜백함수 설정
 		std::cout << "GLEW Initialized" << std::endl;
 
 	glutDisplayFunc(drawScene);						 	 // 출력 함수의 지정
-	glutReshapeFunc(Reshape);							 // 다시 그리기 함수 지정
 	glutMouseFunc(Mouse);
+	glutReshapeFunc(Reshape);							 // 다시 그리기 함수 지정
 	glutMainLoop();										 // 이벤트 처리 시작 
 }
 
@@ -70,4 +70,16 @@ GLvoid drawScene()
 GLvoid Reshape(int w, int h) // 콜백 함수: 다시 그리기
 {
 	glViewport(0, 0, w, h);
-}void Mouse(int button, int state, int x, int y){	int x1, x2, y1, y2;		x1 = Window_Width / 2 - Window_Width / 4;	y1 = Window_Height / 2 - Window_Height / 4;	x2 = Window_Width / 2 + Window_Width / 4;	y2 = Window_Height / 2 + Window_Height / 4;	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {		if (x >= x1 && x <= x2 && y >= y1 && y <= y2) {			Rectangle_red = uid(dre);			Rectangle_green = uid(dre);			Rectangle_blue = uid(dre);		}		else {			red = uid(dre);			green = uid(dre);			blue = uid(dre);		}	}	glutPostRedisplay();}
+}void Mouse(int button, int state, int x, int y){	std::cout << x << std::endl;	std::cout << y << std::endl;	GLfloat x1, y1;	float x_size = Window_Width / 2, y_size = Window_Height / 2;	/*x1 = Window_Width / 2 - Window_Width / 4;	y1 = Window_Height / 2 - Window_Height / 4;	x2 = Window_Width / 2 + Window_Width / 4;	y2 = Window_Height / 2 + Window_Height / 4;*/	if (x < x_size) {
+		x1 = -(GLfloat)((GLfloat)(x_size - x) / (GLfloat)x_size);
+	}
+	else {
+		x1 = (GLfloat)((GLfloat)(x - x_size) / (GLfloat)x_size);
+	}
+
+	if (y < y_size) {
+		y1 = (GLfloat)((GLfloat)(y_size - y) / (GLfloat)y_size);
+	}
+	else {
+		y1 = -(GLfloat)((GLfloat)(y - y_size) / (GLfloat)y_size);
+	}	std::cout << x1 << " " << y1 << std::endl;	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {		if (x1 >= -0.5f && x1 <= 0.5f && y1 >= -0.5f && y1 <= 0.5f) {			Rectangle_red = uid(dre);			Rectangle_green = uid(dre);			Rectangle_blue = uid(dre);		}		else {			red = uid(dre);			green = uid(dre);			blue = uid(dre);		}	}	glutPostRedisplay();}
