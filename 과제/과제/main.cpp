@@ -28,6 +28,7 @@ GLfloat Max(GLfloat max[]);
 void Triangle_Slice(Polygons *tmp, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
 void Square_Slice(Polygons *tmp, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
 void Set_Spline(Polygons *tmp);
+bool Check_Line(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat x3, GLfloat y3, GLfloat x4, GLfloat y4);
 
 
 GLuint ShaderProgram;
@@ -45,7 +46,7 @@ bool is_draw_fill = true;
 GLfloat mouse_start_x = 0.0f, mouse_start_y = 0.0f;		// 전역변수 정의
 GLfloat mouse_end_x = 0.0f, mouse_end_y = 0.0f;
 
-double GENERATE = 30;						// generate timer 가 GENERATE 보다 커지면 도형 생성
+double GENERATE = 50;						// generate timer 가 GENERATE 보다 커지면 도형 생성
 double TIMER_SPEED = 70;					// generate * timer_speed  = 생성시간
 double TIME = GENERATE * TIMER_SPEED;
 
@@ -117,6 +118,12 @@ void Timer(int a)
 
 		for (Polygons* tmp = head; tmp != nullptr; tmp = tmp->next) {		// 연결리스트를 돌면서 그림
 			tmp->Update();
+
+			if (is_draw_route)
+				tmp->is_draw_route = true;
+			else
+				tmp->is_draw_route = false;
+
 
 			if (is_draw_fill)
 				tmp->Draw_Fill();
@@ -298,7 +305,7 @@ void Mouse(int button, int state, int x, int y)
 			for (Polygons *tmp = head; tmp != nullptr; tmp = tmp->next) {
 
 				if (tmp->Get_vertex_number() == 3) {
-
+					Triangle_Slice(tmp, mouse_start_x, mouse_start_y, mouse_end_x, mouse_end_y);
 				}
 
 				else if (tmp->Get_vertex_number() == 4) {
@@ -354,15 +361,38 @@ void Draw_Line()
 	glDisableVertexAttribArray(pos_id);
 }
 
-void Triangle_Slice(Polygons *tmp, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
+void Triangle_Slice(Polygons *tmp, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)		//  마우스 직선
 {
-	GLfloat p1_x = x1;
-	GLfloat p1_y = y1;
-	GLfloat p2_x = x2;
-	GLfloat p2_y = y2;
+	// 삼각형 교차 -> 삼각형 직선마다	직선, 직선의 교차점 검사
+
+	GLfloat p1_x = tmp->Get_Pos_x();				// 삼각형 위
+	GLfloat p1_y = tmp->Get_Pos_y() + 0.15f;
+
+	GLfloat p2_x = tmp->Get_Pos_x() - 0.1f;			// 삼각형 왼쪽
+	GLfloat p2_y = tmp->Get_Pos_y() - 0.07f;
+
+	GLfloat p3_x = tmp->Get_Pos_x() + 0.1f;			// 삼각형 오른쪽
+	GLfloat p3_y = tmp->Get_Pos_y() - 0.07f;
 
 
-	
+	GLfloat L1, L2, L3;
+
+	if (Check_Line(p1_x, p1_y, p2_x, p2_y, x1, y1, x2, y2)) {
+
+		std::cout << "선분1 교차" << std::endl;
+	}
+
+	else if (Check_Line(p2_x, p2_y, p3_x, p3_y, x1, y1, x2, y2)) {
+
+		std::cout << "선분2 교차" << std::endl;
+	}
+
+	else if (Check_Line(p3_x, p3_y, p1_x, p1_y, x1, y1, x2, y2)) {
+
+		std::cout << "선분3 교차" << std::endl;
+	}
+
+	// -> 삼각형 사각형으로 나누도록 함
 
 }
 
@@ -433,7 +463,9 @@ void Square_Slice(Polygons *tmp, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
 			tmp->squ_vertexData[19] = new_y1 - tmp->Get_Pos_y();
 
 
-			polygon->Sliced_Set_Polygons(new_x1, new_y1, new_x2, new_y2);
+			polygon->Sliced_Set_Polygons(new_x1 - tmp->Get_Pos_x(), new_y1 - tmp->Get_Pos_y(),
+				new_x2 - tmp->Get_Pos_x(), new_y2 - tmp->Get_Pos_y(), 4, 0, 1, 0,
+				tmp->Get_Pos_x(), tmp->Get_Pos_y());		// 사각형, 좌하단, 좌상단 좌표가 잘린점
 		}
 
 		else if ((new_y1 >= max_y - range && new_y1 <= max_y + range) && (new_y2 >= min_y - range && new_y2 <= min_y + range)) 
@@ -445,7 +477,9 @@ void Square_Slice(Polygons *tmp, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
 			tmp->squ_vertexData[18] = new_x2 - tmp->Get_Pos_x();
 			tmp->squ_vertexData[19] = new_y2 - tmp->Get_Pos_y();
 
-			polygon->Sliced_Set_Polygons(new_x1, new_y1, new_x2, new_y2);
+			polygon->Sliced_Set_Polygons(new_x2 - tmp->Get_Pos_x(), new_y2 - tmp->Get_Pos_y(),
+				new_x1 - tmp->Get_Pos_x(), new_y1 - tmp->Get_Pos_y(), 4, 0, 1, 0,
+				tmp->Get_Pos_x(), tmp->Get_Pos_y());		// 사각형, 좌하단, 좌상단 좌표가 잘린점
 		}
 
 		else if ((new_x1 >= max_x - range && new_x1 <= max_x + range) && (new_x2 >= min_x - range && new_x2 <= min_x + range))
@@ -456,6 +490,10 @@ void Square_Slice(Polygons *tmp, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
 
 			tmp->squ_vertexData[18] = new_x1 - tmp->Get_Pos_x();
 			tmp->squ_vertexData[19] = new_y1 - tmp->Get_Pos_y();
+
+			polygon->Sliced_Set_Polygons(new_x2 - tmp->Get_Pos_x(), new_y2 - tmp->Get_Pos_y(),
+				new_x1 - tmp->Get_Pos_x(), new_y1 - tmp->Get_Pos_y(), 4, 1, 2, 0,
+				tmp->Get_Pos_x(), tmp->Get_Pos_y());		// 사각형, 좌상단, 우상단 좌표가 잘린점
 		}
 
 		else if ((new_x1 >= min_x - range && new_x1 <= min_x + range) && (new_x2 >= max_x - range && new_x2 <= max_x + range))
@@ -466,6 +504,10 @@ void Square_Slice(Polygons *tmp, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
 
 			tmp->squ_vertexData[18] = new_x2 - tmp->Get_Pos_x();
 			tmp->squ_vertexData[19] = new_y2 - tmp->Get_Pos_y();
+
+			polygon->Sliced_Set_Polygons(new_x1 - tmp->Get_Pos_x(), new_y1 - tmp->Get_Pos_y(),
+				new_x2 - tmp->Get_Pos_x(), new_y2 - tmp->Get_Pos_y(), 4, 1, 2, 0,
+				tmp->Get_Pos_x(), tmp->Get_Pos_y());		// 사각형, 좌상단, 우상단 좌표가 잘린점
 		}
 
 		else {		// 삼각형, 오각형으로 나뉨
@@ -492,6 +534,9 @@ void Square_Slice(Polygons *tmp, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
 					tmp->pen_vertexData[24] = 0.1f;		// 우하단
 					tmp->pen_vertexData[25] = -0.1f;
 
+					polygon->Sliced_Set_Polygons(new_x1 - tmp->Get_Pos_x(), new_y1 - tmp->Get_Pos_y(),
+						new_x2 - tmp->Get_Pos_x(), new_y2 - tmp->Get_Pos_y(), 3, 0, 2, 0,
+						tmp->Get_Pos_x(), tmp->Get_Pos_y());
 				}
 
 				else if (new_x1 >= new_x2) {		// 오->왼
@@ -510,6 +555,10 @@ void Square_Slice(Polygons *tmp, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
 
 					tmp->pen_vertexData[24] = 0.1f;		// 우하단
 					tmp->pen_vertexData[25] = -0.1f;
+
+					polygon->Sliced_Set_Polygons(new_x2 - tmp->Get_Pos_x(), new_y2 - tmp->Get_Pos_y(),
+						new_x1 - tmp->Get_Pos_x(), new_y1 - tmp->Get_Pos_y(), 3, 0, 2, 0,
+						tmp->Get_Pos_x(), tmp->Get_Pos_y());
 				}
 
 			}
@@ -536,6 +585,10 @@ void Square_Slice(Polygons *tmp, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
 					tmp->pen_vertexData[24] = 0.1f;		// 우하단
 					tmp->pen_vertexData[25] = -0.1f;
 
+
+					polygon->Sliced_Set_Polygons(new_x1 - tmp->Get_Pos_x(), new_y1 - tmp->Get_Pos_y(),
+						new_x2 - tmp->Get_Pos_x(), new_y2 - tmp->Get_Pos_y(), 3, 0, 2, 1,
+						tmp->Get_Pos_x(), tmp->Get_Pos_y());
 				}
 
 				else if (new_x1 >= new_x2) {		// 오->왼
@@ -554,6 +607,10 @@ void Square_Slice(Polygons *tmp, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
 
 					tmp->pen_vertexData[24] = 0.1f;		// 우하단
 					tmp->pen_vertexData[25] = -0.1f;
+
+					polygon->Sliced_Set_Polygons(new_x2 - tmp->Get_Pos_x(), new_y2 - tmp->Get_Pos_y(),
+						new_x1 - tmp->Get_Pos_x(), new_y1 - tmp->Get_Pos_y(), 3, 0, 2, 1,
+						tmp->Get_Pos_x(), tmp->Get_Pos_y());
 				}
 			}
 
@@ -579,6 +636,10 @@ void Square_Slice(Polygons *tmp, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
 					tmp->pen_vertexData[24] = new_x2 - tmp->Get_Pos_x();			// 좌하단
 					tmp->pen_vertexData[25] = new_y2 - tmp->Get_Pos_y();
 
+					polygon->Sliced_Set_Polygons(new_x1 - tmp->Get_Pos_x(), new_y1 - tmp->Get_Pos_y(),
+						new_x2 - tmp->Get_Pos_x(), new_y2 - tmp->Get_Pos_y(), 3, 1, 2, 3,
+						tmp->Get_Pos_x(), tmp->Get_Pos_y());
+
 				}
 
 				else if (new_x1 >= new_x2) {		// 오->왼
@@ -597,6 +658,10 @@ void Square_Slice(Polygons *tmp, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
 
 					tmp->pen_vertexData[24] = new_x1 - tmp->Get_Pos_x();			// 좌하단
 					tmp->pen_vertexData[25] = new_y1 - tmp->Get_Pos_y();
+
+					polygon->Sliced_Set_Polygons(new_x2 - tmp->Get_Pos_x(), new_y2 - tmp->Get_Pos_y(),
+						new_x1 - tmp->Get_Pos_x(), new_y1 - tmp->Get_Pos_y(), 3, 1, 2, 3,
+						tmp->Get_Pos_x(), tmp->Get_Pos_y());
 				}
 			}
 
@@ -622,7 +687,9 @@ void Square_Slice(Polygons *tmp, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
 					tmp->pen_vertexData[24] = new_x1 - tmp->Get_Pos_x();			// 우하단
 					tmp->pen_vertexData[25] = new_y1 - tmp->Get_Pos_y();
 
-					std::cout << "오른쪽, 아래쪽 슬라이스 왼->오" << std::endl;
+					polygon->Sliced_Set_Polygons(new_x1 - tmp->Get_Pos_x(), new_y1 - tmp->Get_Pos_y(),
+						new_x2 - tmp->Get_Pos_x(), new_y2 - tmp->Get_Pos_y(), 3, 0, 1, 2,
+						tmp->Get_Pos_x(), tmp->Get_Pos_y());
 				}
 
 				else if (new_x1 >= new_x2) {		// 오->왼
@@ -642,7 +709,9 @@ void Square_Slice(Polygons *tmp, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
 					tmp->pen_vertexData[24] = new_x2 - tmp->Get_Pos_x();			// 우하단
 					tmp->pen_vertexData[25] = new_y2 - tmp->Get_Pos_y();
 
-					std::cout << "오른쪽, 아래쪽 슬라이스 오->왼" << std::endl;
+					polygon->Sliced_Set_Polygons(new_x2 - tmp->Get_Pos_x(), new_y2 - tmp->Get_Pos_y(),
+						new_x1 - tmp->Get_Pos_x(), new_y1 - tmp->Get_Pos_y(), 3, 0, 1, 2,
+						tmp->Get_Pos_x(), tmp->Get_Pos_y());
 				}
 			}
 
@@ -651,7 +720,8 @@ void Square_Slice(Polygons *tmp, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
 
 		// ----------------------------------------- 도형 자르기 ----------------------------------------
 
-		Set_Spline(tmp);
+
+		Set_Spline(tmp);	// 기존 잘린 도형의 스플라인 재설정
 
 
 
@@ -714,13 +784,12 @@ GLfloat Max(GLfloat max[])
 
 }
 
-void Set_Spline(Polygons *tmp)
+void Set_Spline(Polygons *tmp)		// 잘린후 기존 도형의 스플라인
 {
 	GLfloat x1, y1, x2, y2, x3, y3;
 
 	x1 = tmp->Get_Pos_x();
 	y1 = tmp->Get_Pos_y();
-
 
 	x2 = -0.6f;
 	y2 = 0.0f;
@@ -728,8 +797,34 @@ void Set_Spline(Polygons *tmp)
 	x3 = -0.4f;
 	y3 = -1.4f;
 
+
+
 	tmp->Set_Curve(x1, y1, x2, y2, x3, y3);
 
 
+
+}
+
+int ccw(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat x3, GLfloat y3)
+{
+	int op = (x2 - x1) * (y3 - y1) - (y2 - y1)*(x3 - x1);
+
+	if (op > 0)
+		return 1;
+	else if (op == 0)
+		return 0;
+	else
+		return -1;
+}
+
+bool Check_Line(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat x3, GLfloat y3, GLfloat x4, GLfloat y4)
+{
+	// 마우스 p1, p2    삼각형의 점 하나 p3 p4
+
+	if (ccw(x1, y1, x2, y2, x3, y3) * ccw(x1, y1, x2, y2, x4, y4) <= 0 && ccw(x3, y3, x4, y4, x1, y1) * ccw(x3, y3, x4, y4, x2, y2)) {
+		return true;
+	}
+
+	return false;
 
 }

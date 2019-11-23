@@ -1,4 +1,22 @@
-﻿  main.cpp
-d:\home\desktop\2-2\computer-graphics\과제\과제\main.cpp(70): warning C4244: '인수': 'double'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-d:\home\desktop\2-2\computer-graphics\과제\과제\main.cpp(186): warning C4244: '인수': 'double'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+﻿  Polygon.cpp
+d:\home\desktop\2-2\computer-graphics\과제\과제\polygon.cpp(130): warning C4244: '=': 'double'에서 'GLfloat'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\home\desktop\2-2\computer-graphics\과제\과제\polygon.cpp(131): warning C4244: '=': 'double'에서 'GLfloat'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\home\desktop\2-2\computer-graphics\과제\과제\polygon.cpp(156): warning C4244: '=': 'double'에서 'T'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+          with
+          [
+              T=float
+          ]
+d:\home\desktop\2-2\computer-graphics\과제\과제\polygon.cpp(157): warning C4244: '=': 'double'에서 'T'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+          with
+          [
+              T=float
+          ]
+d:\home\desktop\2-2\computer-graphics\과제\과제\polygon.cpp(179): warning C4244: '=': 'double'에서 'GLfloat'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\home\desktop\2-2\computer-graphics\과제\과제\polygon.cpp(180): warning C4244: '=': 'double'에서 'GLfloat'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\home\desktop\2-2\computer-graphics\과제\과제\polygon.cpp(236): warning C4244: 'return': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\home\desktop\2-2\computer-graphics\과제\과제\polygon.cpp(241): warning C4244: 'return': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\home\desktop\2-2\computer-graphics\과제\과제\polygon.cpp(246): warning C4244: 'return': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\home\desktop\2-2\computer-graphics\과제\과제\polygon.cpp(251): warning C4244: 'return': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\home\desktop\2-2\computer-graphics\과제\과제\polygon.cpp(256): warning C4244: 'return': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\home\desktop\2-2\computer-graphics\과제\과제\polygon.cpp(261): warning C4244: 'return': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   과제.vcxproj -> D:\Home\Desktop\2-2\Computer-Graphics\과제\Debug\과제.exe

@@ -39,15 +39,17 @@ public:
 	Polygons *next = nullptr;		// 연결리스트 위한 변수
 	Polygons *pre = nullptr;
 	bool is_sliced = false;		// 잘렸는지 확인
+	bool is_draw_route = true;
 
 	void Set_Polygons();
-	void Sliced_Set_Polygons(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, int n, int index_1, int index_2);
+	void Sliced_Set_Polygons(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, int n, int index_1, int index_2, int q, GLfloat pos_x, GLfloat pos_y);
 	
 	void Update();
 	void Render(GLuint ShaderProgram);
 
 	void Draw_Fill();
 	void Draw_Line();
+	void Draw_Route(GLuint ShaderProgram);
 
 	double Get_I();
 	int Get_vertex_number() { return this->vertex_count; }
@@ -100,6 +102,22 @@ public:
 		0,4,3
 	};
 
+	GLfloat route_vertexData[60] = {
+		0.0f, 0.0f, 0.0f,		1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 0.0f,		1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 0.0f,		1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 0.0f,		1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 0.0f,		1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 0.0f,		1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 0.0f,		1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 0.0f,		1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 0.0f,		1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 0.0f,		1.0f, 1.0f, 1.0f
+	};
+
+	GLfloat cp_x;
+	GLfloat cp_y;
+	GLfloat ep_x, ep_y;
 
 	Polygons *Get_This() {		// 자기 자신 주소 반환
 		return this;
