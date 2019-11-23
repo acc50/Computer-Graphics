@@ -1,2 +1,4 @@
 ﻿  main.cpp
+d:\home\desktop\2-2\computer-graphics\과제\과제\main.cpp(70): warning C4244: '인수': 'double'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\home\desktop\2-2\computer-graphics\과제\과제\main.cpp(186): warning C4244: '인수': 'double'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   과제.vcxproj -> D:\Home\Desktop\2-2\Computer-Graphics\과제\Debug\과제.exe

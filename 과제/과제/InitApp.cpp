@@ -1,5 +1,7 @@
-
 #include "InitApp.h"
+
+extern GLfloat mouse_start_x, mouse_start_y;		// 전역변수 선언
+extern GLfloat mouse_end_x, mouse_end_y;
 
 bool InitProgram(unsigned int& ShaderProgram)
 {
@@ -46,25 +48,4 @@ bool Check(unsigned int ShaderProgram)
 		return false;
 	}
 	return true;
-}
-
-void CreateTriangle(GLuint& EBO, GLuint& VBO)
-{
-	GLfloat vertexData[] = {
-		0.0f, 0.2f, 0.0f,	1.0f, 1.0f, 1.0f,	// 1번점
-		-0.15f, -0.1f, 0.0f,	1.0f, 1.0f, 1.0f,	// 2번점
-		0.15f, -0.1f, 0.0f,	1.0f, 1.0f, 1.0f	// 3번점
-	};
-	glGenBuffers(1, &VBO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
-
-	unsigned int indexData[] = {
-		0,1,2
-	};
-	glGenBuffers(1, &EBO);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 3, &indexData, GL_STATIC_DRAW);
 }
