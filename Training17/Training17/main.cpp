@@ -23,14 +23,16 @@ GLuint VBO, EBO;
 GLuint midVBO, midEBO;
 GLuint upVBO, upEBO;
 GLuint boardEBO, boardVBO;
+GLuint lVBO, lEBO;
 
 GLfloat down_move = 0.0f, mid_move = 0.0f, up_move = 0.0f;
 
 
 float angle = 0;
 
-bool mid_rotate = false;
-bool up_rotate = false;
+bool y_rotate = false;
+GLfloat light_y_angle = 0.0f;
+bool light_switch = true;
 
 bool is_move = true;
 int move_dir = 1;
@@ -43,10 +45,14 @@ int y_dir = 1, z_dir = 1;
 glm::vec3 CameraPos = glm::vec3(0.0f, 1.0f, 2.0f);
 glm::vec3 AT = glm::vec3(0.0f, 0.0f, 0.0f);
 
+glm::vec4 LightPos = glm::vec4(-4.0, 1.0, 0.0, 1.0);		// 광원 위치
+glm::vec3 lightColor = glm::vec3(1.0, 1.0, 1.0);
+
 GLvoid draw_cube_down(float);
 GLvoid draw_cube_mid(float);
 GLvoid draw_cube_up(float);
 GLvoid draw_board();
+GLvoid draw_polygon();
 
 void Timer(int a);
 void y_Rotate_Timer(int a);
@@ -112,25 +118,12 @@ void Timer(int a)
 
 void y_Rotate_Timer(int a)
 {
-	if (mid_rotate) {
-		if (y_dir == 1) {
-			y_angle += 1.0f;
-
-			if (y_angle > 90.0f)
-				y_dir = -1;
-		}
-
-		else if (y_dir == -1) {
-			y_angle -= 1.0f;
-
-			if (y_angle < -90.0f)
-				y_dir = 1;
-		}
-	}
+	if (y_rotate)
+		light_y_angle = 1.0f;
 
 	glutPostRedisplay();
 
-	if(mid_rotate)
+	if(y_rotate)
 		glutTimerFunc(20, y_Rotate_Timer, a);
 }
 
@@ -144,30 +137,6 @@ void Camera_Timer(int a)
 
 	if (is_camera_rotate)
 		glutTimerFunc(20, Camera_Timer, a);
-}
-
-void z_Rotate_Timer(int a) 
-{
-	if (up_rotate) {
-		if (z_dir == 1) {
-			z_angle += 1.0f;
-
-			if (z_angle > 90.0f)
-				z_dir = -1;
-		}
-
-		else if (z_dir == -1) {
-			z_angle -= 1.0f;
-
-			if (z_angle < -90.0f)
-				z_dir = 1;
-		}
-	}
-
-	glutPostRedisplay();
-
-	if (up_rotate)
-		glutTimerFunc(20, z_Rotate_Timer, a);
 }
 
 GLvoid drawScene()
@@ -194,23 +163,32 @@ GLvoid drawScene()
 	glm::mat4 tx = glm::mat4(1.0f);
 	tx = glm::translate(tx, glm::vec3(CameraPos.x, CameraPos.y, CameraPos.z));		// 제자리 변환
 	
-	if (!is_standard_camera)
-		view = view * rotate;
+	view = view * rotate;
 
-	else if (is_standard_camera)
-		view = view * tx * rotate * itx;
 
 	glUniformMatrix4fv(viewLocation, 1, GL_FALSE, &view[0][0]);		// 뷰변환
 
 
 	glm::mat4 projection = glm::mat4(1.0f);		// 투영변환
-	projection = glm::perspective(glm::radians(60.0f), (float)WIDTH / (float)HEIGHT, 1.0f, 200.0f);	// 뷰잉각도, 종횡비, 가까운거리, 먼거리
+	projection = glm::perspective(glm::radians(120.0f), (float)WIDTH / (float)HEIGHT, 0.0f, 2000.0f);	// 뷰잉각도, 종횡비, 가까운거리, 먼거리
 	glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, &projection[0][0]);		// 투영변환
+
+	glm::mat4 r = glm::mat4(1.0f);
+	r = glm::rotate(r, glm::radians(light_y_angle), glm::vec3(0.0f, 1.0f, 0.0f));
+	LightPos = LightPos * r;
+
+	int viewPosLocation = glGetUniformLocation(ShaderProgram, "viewPos");
+	glUniform3f(viewPosLocation, CameraPos.x, CameraPos.y, CameraPos.z);
+	int lightPosLocation = glGetUniformLocation(ShaderProgram, "lightPos");
+	glUniform3f(lightPosLocation, LightPos.x, LightPos.y, LightPos.z);
+	int lightColorLocation = glGetUniformLocation(ShaderProgram, "lightColor");
+	glUniform3f(lightColorLocation, lightColor.r, lightColor.g, lightColor.b);									// 백색광
 
 	draw_board();
 	draw_cube_down(angle);
 	draw_cube_mid(angle);
 	draw_cube_up(angle);
+	draw_polygon();
 
 	glutSwapBuffers();
 
@@ -226,16 +204,17 @@ GLvoid Reshape(int w, int h)
 GLvoid draw_cube_down(float x)
 {
 	GLfloat vertex[] = {
-		-0.5f, 1.0f, -0.5f,		0.0f,0.5f,0.0f,  //0번점
-		-0.5f, 1.0f, 0.5f,		0.0f,0.5f,0.0f,  //1번점
-		0.5f, 1.0f, 0.5f,		0.0f,0.5f,0.0f,  //2번점
-		0.5f, 1.0f, -0.5f,		0.0f,0.5f,0.0f,  //3번점
+		-0.5f, 1.0f, -0.5f,		-1.0f, 1.0f, -1.0f,  //0번점
+		-0.5f, 1.0f, 0.5f,		-1.0f ,1.0f, 1.0f,  //1번점
+		0.5f, 1.0f, 0.5f,		1.0f, 1.0f,  1.0f,  //2번점
+		0.5f, 1.0f, -0.5f,		1.0f, 1.0f, -1.0f,  //3번점
 
-		-0.5f, 0.0f, -0.5f,		0.0f,0.5f,0.0f,  //4번점
-		-0.5f, 0.0f, 0.5f,		0.0f,0.5f,0.0f,  //5번점
-		0.5f, 0.0f, 0.5f,		0.0f,0.5f,0.0f,  //6번점
-		0.5f, 0.0f, -0.5f,		0.0f,0.5f,0.0f,  //7번점
+		-0.5f, 0.0f, -0.5f,		-1.0f, -1.0f, -1.0f,  //4번점
+		-0.5f, 0.0f, 0.5f,		-1.0f, -1.0f, 1.0f,  //5번점
+		0.5f, 0.0f, 0.5f,		1.0f, -1.0f,  1.0f,  //6번점
+		0.5f, 0.0f, -0.5f,		1.0f, -1.0f, -1.0f,  //7번점
 	};
+
 	glGenBuffers(1, &VBO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -287,36 +266,42 @@ GLvoid draw_cube_down(float x)
 
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));		// 모델변환
 
-	GLuint pos_id = glGetAttribLocation(ShaderProgram, "vPos");
-	glEnableVertexAttribArray(pos_id);
-	glVertexAttribPointer(pos_id, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+	//GLuint pos_id = glGetAttribLocation(ShaderProgram, "vPos");		//	location=0 이므로 attribpointer 에서 첫인자에 0넣으면 됨
+	//glEnableVertexAttribArray(pos_id);	
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+	glEnableVertexAttribArray(0);
 
-	GLuint frag_id = glGetAttribLocation(ShaderProgram, "vColor");
-	glEnableVertexAttribArray(frag_id);
-	glVertexAttribPointer(frag_id, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));//3번째 인자는 다음꺼까지 얼마나 떨어질까, 맨뒤에 인자는 어디서 시작할까 x,y,z,r,g,b,니깐  3번쨰부터시작해서 6칸떨어져야 다음시작위치
+	//GLuint frag_id = glGetAttribLocation(ShaderProgram, "vColor");
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	int objColorLocation = glGetUniformLocation(ShaderProgram, "objectColor");
+	glUniform3f(objColorLocation, 1.0, 0.0, 0.2);
+
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
-	glDisableVertexAttribArray(pos_id);
-	glDisableVertexAttribArray(frag_id);
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
 }
 
 GLvoid draw_cube_mid(float x)
 {
 
 	GLfloat vertex[] = {
-		-0.5f, 1.0f, -0.5f,		0.0f,0.5f,0.5f,  //0번점
-		-0.5f, 1.0f, 0.5f,		0.0f,0.5f,0.5f,  //1번점
-		0.5f, 1.0f, 0.5f,		0.0f,0.5f,0.5f,  //2번점
-		0.5f, 1.0f, -0.5f,		0.0f,0.5f,0.5f,  //3번점
+		-0.5f, 1.0f, -0.5f,		-1.0f, 1.0f, -1.0f,  //0번점
+		-0.5f, 1.0f, 0.5f,		-1.0f ,1.0f, 1.0f,  //1번점
+		0.5f, 1.0f, 0.5f,		1.0f, 1.0f,  1.0f,  //2번점
+		0.5f, 1.0f, -0.5f,		1.0f, 1.0f, -1.0f,  //3번점
 
-		-0.5f, 0.0f, -0.5f,		0.0f,0.5f,0.5f,  //4번점
-		-0.5f, 0.0f, 0.5f,		0.0f,0.5f,0.5f,  //5번점
-		0.5f, 0.0f, 0.5f,		0.0f,0.5f,0.5f,  //6번점
-		0.5f, 0.0f, -0.5f,		0.0f,0.5f,0.5f,  //7번점
+		-0.5f, 0.0f, -0.5f,		-1.0f, -1.0f, -1.0f,  //4번점
+		-0.5f, 0.0f, 0.5f,		-1.0f, -1.0f, 1.0f,  //5번점
+		0.5f, 0.0f, 0.5f,		1.0f, -1.0f,  1.0f,  //6번점
+		0.5f, 0.0f, -0.5f,		1.0f, -1.0f, -1.0f,  //7번점
 	};
+
 	glGenBuffers(1, &midVBO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, midVBO);
@@ -370,35 +355,39 @@ GLvoid draw_cube_mid(float x)
 
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));		// 모델변환
 
-	GLuint pos_id = glGetAttribLocation(ShaderProgram, "vPos");
-	glEnableVertexAttribArray(pos_id);
-	glVertexAttribPointer(pos_id, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+	//GLuint pos_id = glGetAttribLocation(ShaderProgram, "vPos");		//	location=0 이므로 attribpointer 에서 첫인자에 0넣으면 됨
+	//glEnableVertexAttribArray(pos_id);	
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+	glEnableVertexAttribArray(0);
 
-	GLuint frag_id = glGetAttribLocation(ShaderProgram, "vColor");
-	glEnableVertexAttribArray(frag_id);
-	glVertexAttribPointer(frag_id, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));//3번째 인자는 다음꺼까지 얼마나 떨어질까, 맨뒤에 인자는 어디서 시작할까 x,y,z,r,g,b,니깐  3번쨰부터시작해서 6칸떨어져야 다음시작위치
+	//GLuint frag_id = glGetAttribLocation(ShaderProgram, "vColor");
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	int objColorLocation = glGetUniformLocation(ShaderProgram, "objectColor");
+	glUniform3f(objColorLocation, 0.2, 0.0, 1.0);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
-	glDisableVertexAttribArray(pos_id);
-	glDisableVertexAttribArray(frag_id);
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
 }
 
 GLvoid draw_cube_up(float x)
 {
 
 	GLfloat vertex[] = {
-		-0.5f, 1.0f, -0.5f,		0.5f,0.5f,0.0f,  //0번점
-		-0.5f, 1.0f, 0.5f,		0.5f,0.5f,0.0f,  //1번점
-		0.5f, 1.0f, 0.5f,		0.5f,0.5f,0.0f,  //2번점
-		0.5f, 1.0f, -0.5f,		0.5f,0.5f,0.0f,  //3번점
+		-0.5f, 1.0f, -0.5f,		-1.0f, 1.0f, -1.0f,  //0번점
+		-0.5f, 1.0f, 0.5f,		-1.0f ,1.0f, 1.0f,  //1번점
+		0.5f, 1.0f, 0.5f,		1.0f, 1.0f,  1.0f,  //2번점
+		0.5f, 1.0f, -0.5f,		1.0f, 1.0f, -1.0f,  //3번점
 
-		-0.5f, 0.0f, -0.5f,		0.5f,0.5f,0.0f,  //4번점
-		-0.5f, 0.0f, 0.5f,		0.5f,0.5f,0.0f,  //5번점
-		0.5f, 0.0f, 0.5f,		0.5f,0.5f,0.0f,  //6번점
-		0.5f, 0.0f, -0.5f,		0.5f,0.5f,0.0f,  //7번점
+		-0.5f, 0.0f, -0.5f,		-1.0f, -1.0f, -1.0f,  //4번점
+		-0.5f, 0.0f, 0.5f,		-1.0f, -1.0f, 1.0f,  //5번점
+		0.5f, 0.0f, 0.5f,		1.0f, -1.0f,  1.0f,  //6번점
+		0.5f, 0.0f, -0.5f,		1.0f, -1.0f, -1.0f,  //7번점
 	};
 	glGenBuffers(1, &upVBO);
 
@@ -463,20 +452,25 @@ GLvoid draw_cube_up(float x)
 
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));		// 모델변환
 
-	GLuint pos_id = glGetAttribLocation(ShaderProgram, "vPos");
-	glEnableVertexAttribArray(pos_id);
-	glVertexAttribPointer(pos_id, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+	//GLuint pos_id = glGetAttribLocation(ShaderProgram, "vPos");		//	location=0 이므로 attribpointer 에서 첫인자에 0넣으면 됨
+	//glEnableVertexAttribArray(pos_id);	
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+	glEnableVertexAttribArray(0);
 
-	GLuint frag_id = glGetAttribLocation(ShaderProgram, "vColor");
-	glEnableVertexAttribArray(frag_id);
-	glVertexAttribPointer(frag_id, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));//3번째 인자는 다음꺼까지 얼마나 떨어질까, 맨뒤에 인자는 어디서 시작할까 x,y,z,r,g,b,니깐  3번쨰부터시작해서 6칸떨어져야 다음시작위치
+	//GLuint frag_id = glGetAttribLocation(ShaderProgram, "vColor");
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	int objColorLocation = glGetUniformLocation(ShaderProgram, "objectColor");
+	glUniform3f(objColorLocation, 0.2, 1.0, 0.2);
+
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
-	glDisableVertexAttribArray(pos_id);
-	glDisableVertexAttribArray(frag_id);
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
 }
 
 GLvoid draw_board()
@@ -496,20 +490,82 @@ GLvoid draw_board()
 	glBindBuffer(GL_ARRAY_BUFFER, boardVBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, boardEBO);
 
-	GLuint pos_id = glGetAttribLocation(ShaderProgram, "vPos");
-	glEnableVertexAttribArray(pos_id);
-	glVertexAttribPointer(pos_id, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+	//GLuint pos_id = glGetAttribLocation(ShaderProgram, "vPos");		//	location=0 이므로 attribpointer 에서 첫인자에 0넣으면 됨
+	//glEnableVertexAttribArray(pos_id);	
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+	glEnableVertexAttribArray(0);
 
-	GLuint frag_id = glGetAttribLocation(ShaderProgram, "vColor");
-	glEnableVertexAttribArray(frag_id);
-	glVertexAttribPointer(frag_id, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	//GLuint frag_id = glGetAttribLocation(ShaderProgram, "vColor");
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	int objColorLocation = glGetUniformLocation(ShaderProgram, "objectColor");
+	glUniform3f(objColorLocation, 0.5, 0.5, 0.5);
+
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-	glDisableVertexAttribArray(pos_id);
-	glDisableVertexAttribArray(frag_id);
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+}
+
+GLvoid draw_polygon()
+{
+	GLfloat vertex[] = {
+		-0.2f,  -0.2f,  0.0f,		-1.0f, -1.0f, 0.0f,  //0번점
+		-0.2f,  0.2f,  0.0f,		-1.0f, 1.0f, 0.0f,  //1번점
+		 0.2f,  0.2f,  0.0f,		1.0f, 1.0f, 0.0f,  //2번점
+		 0.2f,  -0.2f,  0.0f,		1.0f, -1.0f, 0.0f   //3번점
+	};
+
+
+
+	glGenBuffers(1, &lVBO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, lVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex), vertex, GL_STATIC_DRAW);
+
+	GLint gIndices[]
+	{
+		0,2,1,
+		0,3,2
+	};
+
+	glGenBuffers(1, &lEBO);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, lEBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(gIndices), &gIndices, GL_STATIC_DRAW);
+
+
+	unsigned int modelLocation = glGetUniformLocation(ShaderProgram, "trans");
+
+	glm::mat4 model = glm::mat4(1.0f);		// 모델변환
+	glm::mat4 rm = glm::mat4(1.0f);
+	glm::mat4 tx = glm::mat4(1.0f);
+
+	tx = glm::translate(tx, glm::vec3(LightPos.x, LightPos.y, LightPos.z));
+
+	model = model * tx;
+	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));		// 모델변환
+
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+	glEnableVertexAttribArray(0);
+
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	int objColorLocation = glGetUniformLocation(ShaderProgram, "objectColor");
+	glUniform3f(objColorLocation, 1.0, 1.0, 0.0);
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
 }
 
 void InputKey(unsigned char key, int x, int y)
@@ -519,69 +575,38 @@ void InputKey(unsigned char key, int x, int y)
 	switch (key)
 	{
 	case'm':
-		if (mid_rotate) {
-			mid_rotate = false;
+		if (light_switch) {
+			light_switch = false;
+			lightColor.r = 0.0f; 
+			lightColor.g = 0.0f; 
+			lightColor.b = 0.0f;
 		}
-
-		else if(!mid_rotate) {
-			mid_rotate = true;
-			glutTimerFunc(20, y_Rotate_Timer, 1);
-		}
-
-		break;
-
-	case 't':
-		if (up_rotate) {
-			up_rotate = false;
-		}
-
-		else if (!up_rotate) {
-			up_rotate = true;
-			glutTimerFunc(20, z_Rotate_Timer, 2);
+		else {
+			light_switch = true;
+			lightColor.r = 1.0f;
+			lightColor.g = 1.0f;
+			lightColor.b = 1.0f;
 		}
 
 		break;
+
+
 
 	case's':
-		if (is_move) {
-			is_move = false;
-			mid_rotate = false;
-			up_rotate = false;
-		}
-
-		else if (!is_move) {
-			is_move = true;
-			mid_rotate = true;
-			up_rotate = true;
-			glutTimerFunc(10, Timer, 1);
-		}
+		
 		break;
 
-	case'c':
-		if (is_camera_rotate) {
-			is_camera_rotate = false;
-			camera_y = 0.0f;
-		}
 
-		else if (!is_camera_rotate) {
-			is_camera_rotate = true;
-			glutTimerFunc(10, Camera_Timer, 1);
-		}
-
-		break;
 
 	case 'r':
-		if (is_camera_rotate && is_standard_camera) {
-			is_camera_rotate = false;
-			is_standard_camera = false;
-			camera_y = 0.0f;
 
+		if (y_rotate) {
+			y_rotate = false;
 		}
 
-		else if (!is_camera_rotate) {
-			is_camera_rotate = true;
-			is_standard_camera = true;
-			glutTimerFunc(10, Camera_Timer, 1);
+		else {
+			y_rotate = true;
+			glutTimerFunc(10, y_Rotate_Timer, 1);
 		}
 
 		break;

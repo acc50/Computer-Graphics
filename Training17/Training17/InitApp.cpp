@@ -53,15 +53,15 @@ void CreateCube(GLuint& EBO, GLuint& VBO)
 {
 
 	GLfloat vertex[] = {
-		-0.5f, 1.0f, -0.5f,		0.0f,0.5f,0.0f,  //0번점
-		-0.5f, 1.0f, 0.5f,		0.0f,0.5f,0.0f,  //1번점
-		0.5f, 1.0f, 0.5f,		0.0f,0.5f,0.0f,  //2번점
-		0.5f, 1.0f, -0.5f,		0.0f,0.5f,0.0f,  //3번점
+		-0.5f, 1.0f, -0.5f,		-1.0f, 1.0f, -1.0f,  //0번점
+		-0.5f, 1.0f, 0.5f,		-1.0f ,1.0f, 1.0f,  //1번점
+		0.5f, 1.0f, 0.5f,		1.0f, 1.0f,  1.0f,  //2번점
+		0.5f, 1.0f, -0.5f,		1.0f, 1.0f, -1.0f,  //3번점
 
-		-0.5f, 0.0f, -0.5f,		0.0f,0.5f,0.0f,  //4번점
-		-0.5f, 0.0f, 0.5f,		0.0f,0.5f,0.0f,  //5번점
-		0.5f, 0.0f, 0.5f,		0.0f,0.5f,0.0f,  //6번점
-		0.5f, 0.0f, -0.5f,		0.0f,0.5f,0.0f,  //7번점
+		-0.5f, 0.0f, -0.5f,		-1.0f, -1.0f, -1.0f,  //4번점
+		-0.5f, 0.0f, 0.5f,		-1.0f, -1.0f, 1.0f,  //5번점
+		0.5f, 0.0f, 0.5f,		1.0f, -1.0f,  1.0f,  //6번점
+		0.5f, 0.0f, -0.5f,		1.0f, -1.0f, -1.0f,  //7번점
 	};
 	glGenBuffers(1, &VBO);
 
@@ -102,10 +102,10 @@ void CreateCube(GLuint& EBO, GLuint& VBO)
 void CreateBoard(GLuint& EBO, GLuint& VBO)
 {
 	GLfloat vertex[] = {
-	-1.0f,  0.0f,  1.0f,		0.5f,0.5f,0.0f,  //0번점
-	-1.0f,  0.0f, -1.0f,		0.5f,0.5f,0.0f,  //1번점
-	 1.0f,  0.0f, -1.0f,		0.5f,0.5f,0.0f,  //2번점
-	 1.0f,  0.0f,  1.0f,		0.5f,0.5f,0.0f   //3번점
+	-1.0f,  0.0f,  1.0f,		0.0f,0.0f,1.0f,  //0번점
+	-1.0f,  0.0f, -2.0f,		0.0f,0.0f,1.0f,  //1번점
+	 1.0f,  0.0f, -2.0f,		0.0f,0.0f,1.0f,  //2번점
+	 1.0f,  0.0f,  1.0f,		0.0f,0.0f,1.0f   //3번점
 	};
 
 	glGenBuffers(1, &VBO);
@@ -124,4 +124,30 @@ void CreateBoard(GLuint& EBO, GLuint& VBO)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(gIndices), &gIndices, GL_STATIC_DRAW);
 
+}
+
+void CreatePolygon(GLuint& VBO, GLuint& EBO)
+{
+	GLfloat vertex[] = {
+		-0.1f,  -0.1f,  0.0f,		0.0f,0.0f,1.0f,  //0번점
+		-0.1f,  0.1f,  0.0f,		0.0f,0.0f,1.0f,  //1번점
+		 0.1f,  0.1f,  0.0f,		0.0f,0.0f,1.0f,  //2번점
+		 0.1f,  -0.1f,  0.0f,		0.0f,0.0f,1.0f   //3번점
+	};
+
+	glGenBuffers(1, &VBO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex), vertex, GL_STATIC_DRAW);
+
+	GLint gIndices[]
+	{
+		0,2,1,
+		0,3,2
+	};
+
+	glGenBuffers(1, &EBO);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(gIndices), &gIndices, GL_STATIC_DRAW);
 }

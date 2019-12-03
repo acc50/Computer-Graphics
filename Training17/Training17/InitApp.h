@@ -16,3 +16,4 @@ bool Check(unsigned int ShaderProgram);
 
 void CreateCube(GLuint& EBO, GLuint& VBO);
 void CreateBoard(GLuint& EBO, GLuint& VBO);
+void CreatePolygon(GLuint& VBO, GLuint& EBO);
