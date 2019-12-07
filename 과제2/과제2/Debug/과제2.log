@@ -1,0 +1,43 @@
+﻿  Robot.cpp
+d:\home\desktop\2-2\computer-graphics\과제2\과제2\robot.cpp(74): warning C4244: '=': 'int'에서 'GLfloat'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\home\desktop\2-2\computer-graphics\과제2\과제2\robot.cpp(82): warning C4244: '=': 'double'에서 'T'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+          with
+          [
+              T=float
+          ]
+d:\home\desktop\2-2\computer-graphics\과제2\과제2\robot.cpp(83): warning C4244: '=': 'double'에서 'T'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+          with
+          [
+              T=float
+          ]
+d:\home\desktop\2-2\computer-graphics\과제2\과제2\robot.cpp(106): warning C4244: '=': 'double'에서 'T'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+          with
+          [
+              T=float
+          ]
+d:\home\desktop\2-2\computer-graphics\과제2\과제2\robot.cpp(107): warning C4244: '=': 'double'에서 'T'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+          with
+          [
+              T=float
+          ]
+d:\home\desktop\2-2\computer-graphics\과제2\과제2\robot.cpp(137): warning C4244: '=': 'double'에서 'T'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+          with
+          [
+              T=float
+          ]
+d:\home\desktop\2-2\computer-graphics\과제2\과제2\robot.cpp(138): warning C4244: '=': 'double'에서 'T'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+          with
+          [
+              T=float
+          ]
+d:\home\desktop\2-2\computer-graphics\과제2\과제2\robot.cpp(160): warning C4244: '=': 'double'에서 'T'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+          with
+          [
+              T=float
+          ]
+d:\home\desktop\2-2\computer-graphics\과제2\과제2\robot.cpp(161): warning C4244: '=': 'double'에서 'T'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+          with
+          [
+              T=float
+          ]
+  과제2.vcxproj -> D:\Home\Desktop\2-2\Computer-Graphics\과제2\Debug\과제2.exe
