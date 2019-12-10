@@ -1,5 +1,1 @@
-﻿  main.cpp
-d:\home\desktop\2-2\computer-graphics\training17\training17\main.cpp(279): warning C4305: '인수': 'double'에서 'GLfloat'(으)로 잘립니다.
-d:\home\desktop\2-2\computer-graphics\training17\training17\main.cpp(368): warning C4305: '인수': 'double'에서 'GLfloat'(으)로 잘립니다.
-d:\home\desktop\2-2\computer-graphics\training17\training17\main.cpp(465): warning C4305: '인수': 'double'에서 'GLfloat'(으)로 잘립니다.
-  Training17.vcxproj -> D:\Home\Desktop\2-2\Computer-Graphics\Training17\Debug\Training17.exe
+﻿  Training17.vcxproj -> D:\Home\Desktop\2-2\Computer-Graphics\Training19\Debug\Training17.exe
